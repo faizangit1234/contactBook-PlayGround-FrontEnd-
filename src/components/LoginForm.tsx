@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form'
+import { useState } from 'react'
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -16,7 +17,9 @@ const loginSchema = z.object({
 })
 
 export default function LoginForm() {
+  const [err, setErr] = useState<string | null>(null) // 🔁 make sure it's a string
   const router = useRouter()
+
   const form = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '' },
@@ -25,21 +28,19 @@ export default function LoginForm() {
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     try {
       const res = await axios.post('/users/login', values)
-  
-      // Optionally check for token or role
-      if (res.data?.token) {
-        router.push('/dashboard') // or based on role
+
+      if (res.data?.accessToken) {
+        localStorage.setItem('authToken',res.data.accessToken)
+        router.push('/dashboard')
       } else {
-        console.error('Login failed: No token returned')
+        setErr('Login failed: No token received')
       }
-  
     } catch (error: any) {
-      const message = error.response?.data?.message || "Something went wrong"
+      const message = error.response?.data?.message || 'Something went wrong'
+      setErr(message) // ✅ just the message
       console.error('Login failed:', message)
-      // show error toast/snackbar if needed
     }
   }
-  
 
   return (
     <Card className="w-full max-w-md mx-auto mt-24 shadow-xl">
@@ -54,7 +55,15 @@ export default function LoginForm() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="you@example.com" {...field} />
+                    <Input
+                      type="email"
+                      placeholder="you@example.com"
+                      {...field}
+                      onChange={(e) => {
+                        setErr(null) // reset error on input
+                        field.onChange(e)
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -67,7 +76,15 @@ export default function LoginForm() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="Your password" {...field} />
+                    <Input
+                      type="password"
+                      placeholder="Your password"
+                      {...field}
+                      onChange={(e) => {
+                        setErr(null) // reset error on input
+                        field.onChange(e)
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -77,6 +94,11 @@ export default function LoginForm() {
               Sign In
             </Button>
           </form>
+
+          {/* 🔴 ERROR MESSAGE UI */}
+          {err && (
+            <p className="text-sm text-red-500 text-center mt-2">{err}</p>
+          )}
         </Form>
       </CardContent>
     </Card>

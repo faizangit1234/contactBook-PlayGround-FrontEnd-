@@ -1,6 +1,7 @@
 // app/page.tsx
 'use client'
 
+import { ModeToggle } from '@/components/toggleButton'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 
@@ -21,6 +22,7 @@ export default function HomePage() {
       {/* Content */}
       <div className="relative z-10 text-center max-w-xl text-white px-4 py-20">
         <h1 className="text-5xl font-bold mb-6">📇 ContactPlay</h1>
+        <ModeToggle/>
         <p className="text-lg text-gray-300 mb-8">
           Manage your contacts efficiently with your own secure contact book.
         </p>
