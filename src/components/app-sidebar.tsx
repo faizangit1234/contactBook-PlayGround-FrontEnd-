@@ -51,8 +51,8 @@ const data = {
       icon: IconListDetails,
     },
     {
-      title: "Analytics",
-      url: "#",
+      title: "Add Users",
+      url: "/dashboard/users",
       icon: IconChartBar,
     },
     {
