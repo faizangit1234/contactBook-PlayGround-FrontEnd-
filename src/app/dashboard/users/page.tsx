@@ -1,25 +1,30 @@
+'use client'
+
 import { columns } from '@/app/tableTest/columns'
 import { DataTable } from '@/app/tableTest/data-table'
 import { UserForm } from '@/components/forms/userForm'
-import { Payment } from '@/lib/types'
-import React from 'react'
+import axiosInstance from '@/lib/axios'
+import { User } from '@/lib/types'
+import React, { useState, useEffect } from 'react'
 
+const AdminUserDetails = () => {
+  const [users, setUsers] = useState<User[]>([]);
 
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const res = await axiosInstance.get('/users/');
+        console.log(res);
+        setUsers(res.data);
+      } catch (error) {
+        console.error(error);
+        throw new Error("Failed to fetch users");
+      }
+    }
 
-async function getData(): Promise<Payment[]> {
-  // Fetch data from your API here.
-  return [
-    {
-      id: "728ed52f",
-      amount: 100,
-      status: "pending",
-      email: "m@example.com",
-    },
-    // ...
-  ]
-}
-const AdminUserDetails = async () => {
-  const data = await getData()
+    fetchData();
+  }, []);
+
   return (
     <>
       <section className="p-4 mx-4">
@@ -27,7 +32,8 @@ const AdminUserDetails = async () => {
       </section>
 
       <section className="p-4 m-4">
-        <DataTable columns={columns} data={data} />
+        <DataTable<User, unknown> columns={columns} data={users} />
+
       </section>
     </>
   )
